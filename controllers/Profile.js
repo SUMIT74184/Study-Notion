@@ -65,10 +65,15 @@ exports.getAllUSerDEtails=async(req,res)=>{
         const id=req.user.id;
         const userDetails=await User.findById(id).populate("additionalDetails").exec()
             return res.status(200).json({
-                success:true
+                success:true,
+                message:"User fetched Succesfully"
             })
     }
 catch(error){
+    return res.status(500).json({
+        success:false,
+        message:"Unable to Fetch the User details"
+    })
 
 }
 }
