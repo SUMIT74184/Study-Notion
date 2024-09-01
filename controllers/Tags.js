@@ -1,4 +1,5 @@
 const Tag = require("../models/tags");
+const Category = require("../models/Category");
 //create tag handler
 
 exports.createTag = async (req, res) => {
@@ -43,6 +44,46 @@ exports.showAlltags = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+//
+exports.CategoryPageDetails = async (req, res) => {
+  try {
+    //get categoryId
+    const { categoryId } = req.body;
+    // get courses for specific ID
+    const selectedCategory = await Category.findById(categoryId)
+      .populate("courses")
+      .exec();
+    //validation
+    if (!selectedCategory) {
+      return res.status(404).json({
+        success: false,
+        message: "Data not Found",
+      });
+    }
+    //get courses for different categories
+    const differentCategories = await Category.find({
+      _id: { $ne: categoryId },
+    })
+      .populate("courses")
+      .exec();
+    //get top selling courses
+
+    //return
+    return res.status(200).json({
+      success: true,
+      data: {
+        selectedCategory,
+        differentCategories,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Unable to find different category",
     });
   }
 };

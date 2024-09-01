@@ -120,3 +120,46 @@ exports.showAllCourses = async (req, res) => {
     });
   }
 };
+
+exports.getCourseDetails = async (req, res) => {
+  try {
+    //getting the details of all the courses section and subsection
+    const { courseId } = req.body;
+    //finding the course details
+    const courseDetails = await Course.find({ _id: courseId })
+      .populate({
+        path: "instructor",
+        populate: {
+          path: "additionalDetails",
+        },
+      })
+      .populate("category")
+      .populate("ratingAndreviews")
+      .populate({
+        path: "courseContent",
+        populate: {
+          path: "subSection",
+        },
+      })
+      .exec();
+
+    //validation
+    if (!courseDetails) {
+      return res.status(400).json({
+        success: false,
+      });
+    }
+
+    //return response
+    return res.status(200).json({
+      success: true,
+      message: "CourseDetails fetched successfully",
+      data: courseDetails,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Unable to Fetch the CourseDetails,Please Try again",
+    });
+  }
+};
